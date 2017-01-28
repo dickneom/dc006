@@ -1,0 +1,20 @@
+{
+  "name": "dc-006",
+  "description": "",
+  "main": "",
+  "authors": [
+    "DickNeoM <dickneom@yahoo.com>"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/dickneom/dc006",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "bootstrap": "^3.3.7"
+  }
+}
