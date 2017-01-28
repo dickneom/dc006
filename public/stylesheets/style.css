@@ -1,8 +1,15 @@
 body {
   padding: 50px;
   font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+  background-color: rgb(252, 197, 241);
+  color: rgb(195, 0, 158);
 }
 
 a {
   color: #00B7FF;
+}
+
+.error {
+  background-color: rgb(228, 97, 92);
+  color: rgb(255, 207, 207);
 }

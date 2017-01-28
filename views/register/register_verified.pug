@@ -1,0 +1,29 @@
+extends ../layout
+include ../mixins
+
+block content
+  +menu_guest
+
+  if (sessionUser.nickname)
+    h4= sessionUser.nickname
+  else
+    h4= sessionUser.fullname
+
+  p Su cuenta esta activada
+  a(href='/') Entrar
+
+  +foot
+
+
+
+
+
+
+
+
+
+
+
+
+  //- Esta pagina aparece cuando el usuario ingresa desde el email de confirmacion
+  //- confirma al usuario que esta verificado

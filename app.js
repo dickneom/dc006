@@ -4,9 +4,26 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var expressSession = require('express-session')
 
 var index = require('./routes/index');
+var login = require('./routes/login');
+var logout = require('./routes/logout');
+var register = require('./routes/register');
+var pass_recover = require('./routes/pass_recover');
 var users = require('./routes/users');
+
+var session = expressSession(
+	{
+		secret: 'lkjsfffws',
+		key: 'sesionServidor',
+		resave: true,
+		saveUninitialized: true,
+		cookie: {
+			maxAge: 1000 * 60 * 60 * 24 * 30
+		}
+	}
+)
 
 var app = express();
 
@@ -14,6 +31,7 @@ var app = express();
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'pug');
 
+app.use(session)
 // uncomment after placing your favicon in /public
 //app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
 app.use(logger('dev'));
@@ -22,8 +40,12 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', index);
-app.use('/users', users);
+app.use('/', index)
+app.use('/login', login)
+app.use('/logout', logout)
+app.use('/register', register)
+app.use('/pass_recover', pass_recover)
+app.use('/users', users)
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

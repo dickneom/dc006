@@ -1,0 +1,19 @@
+extends layout
+include mixins
+
+block content
+	if (sessionUser.nickname && sessionUser.nickname != '')
+		+menu_user(sessionUser.nickname)
+	else
+		+menu_user(sessionUSer.fullname)
+
+	.container
+		h1 Dress Closet
+		p Welcome to Dress Closet
+		h3 Usuario: #{sessionUser.nickname}
+
+		p Aqui el contenido de la pagina inicial (estoy en home)
+		p publicidad
+		p lista de vestidos
+
+	+foot

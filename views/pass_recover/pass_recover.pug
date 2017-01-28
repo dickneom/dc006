@@ -1,0 +1,19 @@
+extends ../layout
+include ../mixins
+
+block content
+	+menu_guest
+
+	h1 Recuperar contraseña
+
+	if (errors)
+		ul
+			each error in errors
+				li.error= errors
+
+	form(action="/pass_recover" method="post")
+		+input('Email', 'email', 'email', null, null)
+		br
+		button(type='submin') Enviar
+
+	+foot

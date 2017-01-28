@@ -1,0 +1,14 @@
+{
+  "dev": {
+    "driver": "sqlite",
+    "user": "",
+    "database": "/db/dc.db",
+    "password": ""
+  },
+  "production": {
+    "driver": "",
+    "user": "",
+    "database": "",
+    "password": ""
+  }
+}

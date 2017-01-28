@@ -1,0 +1,24 @@
+extends ../layout
+include ../mixins
+
+block content
+	+menu_guest
+
+	h1 Ingreso
+	if errors
+		ul
+			each error in errors
+				li= error
+
+	form(action='/login' method='post')
+		+input('Email', 'email', 'email', null, null) 
+		br
+		+input('Contraseña', 'password', 'password', null, null)
+		br
+		label(for='rememberme') Recuerdame
+		input(type='checkbox' checked=true name='rememberme')
+		br
+		button(type='submit') Ingresar
+		a(href='/pass_recover') Recuperar contraseña
+
+	+foot

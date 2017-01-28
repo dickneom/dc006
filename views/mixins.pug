@@ -1,0 +1,126 @@
+//- archivo con mixins
+
+//-   PARA MENUS
+//-     menu-guest    menu para las paginas de los visitantes no registrados
+//-           Requiere: pageName: para la presentacion de los menus
+//-     menu-user     menu para las paginas de los visitantes registrados
+//-           Requiere: pageName: para la presentacion de los menus
+
+//-   PARA MOSTRAR LOS FILTROS PARA LOS VESTIDOS
+//-     filtro        seccion para filtrar los vestidos
+
+//-   PARA LA PAGINA
+//-     foot          seccion que va al pie de las paginas
+
+//-   PARA FORMULARIOS
+//-   input           un campo input para un formulario, contiene el label,
+//-                   el input y muestra errores si hay
+//-   input_required  un campo input para un formulario, contiene el label,
+//-                   el input y muestra errores si los hay, pero el input es
+//-                   es requerido, no deja pasar si no se llena el campo
+//-   input_readonly  un campo input de solo lectura para un formulacio
+//-   input_error     muestra los errores asociados a los inputs
+//-
+//-
+//-   dress-grid      para mostrar los datos de un vestido en la cuadricula
+//-
+
+//-   MENUS
+mixin menu_guest
+  nav.navbar.navbar-inverse.navbar-fixed-top
+    .container
+      .navbar-header
+        button.navbar-toggle(data-toggle='collapse' data-target='#dcMenu')
+          span.icon-bar
+          span.icon-bar
+          span.icon-bar
+        a.navbar-brand(href='/') DressCloset
+      .collapse.navbar-collapse#dcMenu
+        ul.nav.navbar-nav.navbar-right
+          if (pageName !== 'index')
+            li: a(href='/') Inicio
+          //if (pageName !== 'dresses')
+            li: a(href='/dresses') Vestidos
+          if (pageName !== 'login')
+            li: a(href='/login') Ingresar
+          if (pageName !== 'register')
+            li: a(href='/register') Registrar
+
+mixin menu_user(name)
+  nav.navbar.navbar-inverse.navbar-fixed-top
+    .container
+      .navbar-header
+        button.navbar-toggle(data-toggle='collapse' data-target='#dcMenu')
+          span.icon-bar
+          span.icon-bar
+          span.icon-bar
+        a.navbar-brand(href='/') DressCloset
+      .collapse.navbar-collapse#dcMenu
+        p.navbar-text= name
+        ul.nav.navbar-nav.navbar-right
+          //-if (pageName !== 'dresses')
+            li: a(href='/home') Vestidos
+          //-if (pageName !== 'favorites')
+            li: a(href='/favorites') Favoritos
+          //-if (pageName !== 'profile')
+            li: a(href='/profile') Perfil
+          li: a(href='/logout') Salir
+          //- if (pageName !== 'register')
+          //-li: a(href='#') Menu
+
+mixin filtro
+  form(action='#' method='post')
+    label(for='color') Color
+    select(id='selColor')
+      option Blanco
+      option Negro
+      option Rojo
+      option Azul
+      option Verde
+
+mixin foot
+  nav.navbar.navbar-inverse
+    .container
+      ul.nav.navbar-nav
+        li: a(href='#') Contacto
+        li: a(href='#') Terminos y condiciones
+        li: a(href='#') Privacidad
+
+//-   FORMULARIOS
+mixin input(title, type, field, value, errors)
+  label(for=field)= title
+  if value
+    input(type=type name=field value=value placeholder='Con datos')
+  else
+    input(type=type name=field placeholder='Vacio')
+  +input_error(errors, field)
+
+mixin input_required(title, type, field, value, errors)
+  label(for=field)= title
+  if value
+    input(type=type name=field value=value placeholder='Con datos' required)
+  else
+    input(type=type name=field placeholder='Vacio' required)
+  +input_error(errors, field)
+
+mixin input_error(errors, field)
+  if (errors)
+    each error in errors
+      if (error.path == field)
+        li.error ERROR. #{error.message}
+
+//-   CUADRICULA DE VESTIDOS
+mixin dresses_grid(dresses)
+  .row
+    each dress in dresses
+      .col-sm-4
+        img(src='' width=80 height=100 alt='imagen')
+        h2= dress.title
+        p= dress.description
+        p= dress.price
+
+        a(href='/dresses/' + dress.id + '/like'): button(type='button') Favorito
+        a(href='/dresses/' + dress.id + '/edit'): button(type='button') Editar
+        a(href='/dresses/' + dress.id): button(type='button') Ver
+        button(href='window.location.href="/dress/:' + dress.id + '";') Ver
+

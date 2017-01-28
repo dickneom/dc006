@@ -1,0 +1,67 @@
+extends ../layout
+include ../mixins
+
+block content
+	+menu_guest
+
+	h1= pageTitle
+
+	if (errors)
+		ul
+			each error in errors
+				li.error  Error en: #{error.path} error: #{error.message}
+
+	if user
+		h1 Form lleno
+		form(action='/register' method='post')
+			+input('ID', 'text', 'id', user.id, errors)
+			br
+			+input('Alias', 'text', 'nickname', user.nickname, errors)
+			br
+			+input('Nombre', 'text', 'firstname', user.firstname, errors)
+			br
+			+input('Apellido', 'text', 'lastname', user.lastname, errors)
+			br
+			+input('Email', 'email', 'email', user.email, errors)
+			br
+			+input('Fecha de nacimiento', 'date', 'birthdate', user.birthdate, errors)
+			br
+			+input('Contraseña', 'password', 'password', null, errors)
+			br
+			+input('Repetir contraseña', 'password', 'password1', null, null)
+			br
+			button(type='submit') Registrar
+			button(type='reset') Limpiar
+	else
+		h1 Form vacio
+		form(action='/register' method='post')
+			+input('ID', 'text', 'id', null, null)
+			br
+			+input('Alias', 'text', 'nickname', null, null)
+			br
+			+input('Nombre', 'text', 'firstname', null, null)
+			br
+			+input('Apellido', 'text', 'lastname', null, null)
+			br
+			+input('Email', 'email', 'email', null, null)
+			br
+			+input('Fecha de nacimiento', 'date', 'birthdate', null, null)
+			br
+			+input('Contraseña', 'password', 'password', null, null)
+			br
+			+input('Repetir contraseña', 'password', 'password1', null, null)
+			br
+			button(type='submit') Registrar
+			button(type='reset') Limpiar
+
+	+foot
+
+
+
+
+//- Pagina para el registro de usuarios
+//-   Requiere:
+//-     user: si no hay datos de un usuario el valor será null, caso contrario los datos del usuario,
+//-           en el segundo caso puede ser que hubo un error y se pide que vuelva a ingresar los datos
+//-           pero no se booran los datos
+//-     errors: arreglo con los errores cometidos

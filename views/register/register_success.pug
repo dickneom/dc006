@@ -1,0 +1,31 @@
+extends ../layout
+include ../mixins
+
+block content
+  +menu_guest
+  if user.nickname
+    h1 Bienvenido a DressCloset #{user.nickname}
+  else
+    h1 Bienvenido a DressCloset #{user.fullname}
+
+  h3 Verificación de Email
+  p Un correo fue enviado a su email: #{user.email}
+  p Revise un su correo electronico para atenticar su cuenta.
+
+  //- Esto es solo para pruebas: permite autenticar un usuario con el enlace
+  //- mostrado a continuacion
+  hr
+  p: a(href='/register/' + tempMessage) Link en el email (Autenticar)
+  hr
+  //- Hasta aqui
+  
+  +foot
+
+
+
+
+
+
+
+//- ESta pagina se muestra al usuario despues de registrarse y le indica
+//- que revise su email para que se autentique
