@@ -10,7 +10,7 @@ block content
     each error in errors
       p.error= error
 
-  form(action='/pass_recover_change' method='post')
+  form(action='/pass_recover/change' method='post')
     +input('', 'text', 'id', userId, null)
     +input_required('Contraseña', 'password', 'password', null, null)
     br

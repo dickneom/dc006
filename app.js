@@ -11,6 +11,7 @@ var login = require('./routes/login');
 var logout = require('./routes/logout');
 var register = require('./routes/register');
 var pass_recover = require('./routes/pass_recover');
+var dresses = require('./routes/dresses');
 var users = require('./routes/users');
 
 var session = expressSession(
@@ -39,12 +40,14 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static(path.join(__dirname, 'bower_components')))
 
 app.use('/', index)
 app.use('/login', login)
 app.use('/logout', logout)
 app.use('/register', register)
 app.use('/pass_recover', pass_recover)
+app.use('/dresses', dresses)
 app.use('/users', users)
 
 // catch 404 and forward to error handler

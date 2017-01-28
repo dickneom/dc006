@@ -43,7 +43,9 @@ router.route('/')
 			var date = new Date().getTime()
 			var message = userNew.id + ',' + date
 			console.log('********* Email message: ' + message)
-			message = control.encryptEmail(message)
+			message = '/register/' + control.encryptEmail(message)
+
+			control.sendEmail(userNew.email, message)
 			//
 			// ENVIAR EMAIL
 			// EN MENSAJE CONTIENE LOS DATOS: ID DEL USUARIO, FECHA Y HORA DE ENVIO
@@ -83,6 +85,7 @@ router.get('/:verif', function (req, res) {
 	var code = req.params.verif
 
 	if (code) {
+		code = control.decryptEmail(code)
 		var datos = code.split(',')
 		var userId = datos[0]
 		var date = new Date(parseInt(datos[1]))

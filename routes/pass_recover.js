@@ -31,11 +31,12 @@ router.route('/')
                 	var date = new Date().getTime()
                 	var message = user.id + ',' + date
                 	console.log('*** MENSAJE: ' + message)
-                	var message = control.encryptEmail(message)
+                	var message = '/pass_recover/change/' + control.encryptEmail(message)
 	                //
 	                //  SE DEBE ENVIAR UN CODIGO ESPECIAL
 	                //  ENVIAR EMAIL, CON UN ENLACE QUE CADUCA
 	                //
+	                control.sendEmail(email, message)
 	                res.render('pass_recover/pass_recover_email', {
 	                    pageTitle: 'Recuperar contraseña',
 	                    pageName: 'pass_recover_email',
@@ -147,7 +148,7 @@ router.route('/change')
 	            console.log('****** Actualizando password de: ' + user.nickname)
 	            if (user) {
 //		            if (user.authenticated) {
-		                var pass = control.encriptPassword(password)
+		                var pass = control.encryptPassword(password)
 		                user.update({password: pass})
 		                .then(function (user) {
 		                    control.sessionInit(req, res, user)
