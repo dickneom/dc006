@@ -43,7 +43,8 @@ function sessionInit (req, res, user, rememberme) {
           id: user.id,
           nickname: user.nickname,
           fullname: user.fullname,
-          email: user.email
+          email: user.email,
+          admin: user.admin
       }
     console.log('*** *** *** *** Session iniciada')
 }
@@ -63,6 +64,16 @@ function sessionValidate (req, res, next) {
         next()
     }
 }
+
+// Verifica que el usuario este autenticado
+function isAuthenticatedUser(user, next) {
+    if(user.authenticated)
+        next()
+    else
+        return new Error('Usuario no autenticado.')
+}
+
+
 
 function encryptEmail(message) {
     console.log('*** *** *** *** Encriptando mensaje de email')

@@ -116,14 +116,22 @@ module.exports = function (sequelize, DataTypes) {
       type: DataTypes.TEXT,
       field: 'dir_pobox'
     },
+    isAdmin: {
+      type: DataTypes.BOOLEAN,
+      field: 'is_admin',
+      default: false
+    },
     createdAt: {
-      type: DataTypes.DATE
+      type: DataTypes.DATE,
+      field: 'created_at'
     },
     updatedAt: {
-      type: DataTypes.DATE
+      type: DataTypes.DATE,
+      field: 'updated_at'
     },
     deletedAt: {
-      type: DataTypes.DATE
+      type: DataTypes.DATE,
+      field: 'deleted_at'
     }
   }, {
     tableName: 'users',

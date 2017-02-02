@@ -35,7 +35,10 @@ router.route('/')
 			user.password = control.encryptPassword(user.password)
 		}
 
-		console.log('*** Registrar usuario: ' + user)
+		user.createdAt = new Date()
+		user.updatedAt = new Date()
+
+		console.log('*** Registrar usuario: ' + user + ', createdAt: ' + user.createdAt + ', UpdatedAt: ' +  user.updatedAt)
 
 		db.User.create(user)
 		.then(function (userNew) {

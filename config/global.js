@@ -1,3 +1,4 @@
 exports.global = {}
 
-global.siteTitle= 'Dress Closet'
+global.siteTitle = 'Dress Closet'
+

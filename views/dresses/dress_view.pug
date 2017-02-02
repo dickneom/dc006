@@ -1,0 +1,46 @@
+extends ../layout
+include ../mixins
+
+block content
+	if (sessionUser)
+		if (sessionUser.nickname)
+			+menu(sessionUser.nickname)
+		else
+			+menu(sessionUser.fullname)
+	else
+		+menu(null)
+
+	.container
+		.row
+			.col-sm-9
+				.row
+					.col-sm-6
+						img(src=dress.image width=100 height=200)
+					.col-sm-6
+						h1= dress.title
+						p Descripción: #{dress.description}
+						p Marca: #{brand}
+						p Estado: #{state}
+
+						a(href='/dresses/' + dress.id + '/like'): button(type='button') Agregar Favorito
+						a(href='/dresses/' + dress.id + '/edit'): button(type='button') Editar
+						a(href='/dresses/' + dress.id + '/buy'): button(type='button') Comprar
+				.row
+					div(style='background:rgb(255,180,180)').row
+						.col-sm-3
+							img(src='#' width=60 height=60 alt='Foto')
+							p User 1
+						.col-sm-9
+							p Comentario 1
+
+					div(style='background:rgb(255,180,180)').row
+						.col-sm-3
+							img(src='#' width=60 height=60 alt='Foto')
+							p User 2
+						.col-sm-9
+							p Comentario 2
+
+			.col-md-3
+				p Publicidad
+
+	+foot

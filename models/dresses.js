@@ -38,18 +38,28 @@ module.exports = function (sequelize, DataTypes) {
     size: {   // Talla
       type: DataTypes.TEXT
     },
-/*    userId: {  // id el usuario dueño del vestido
+    image: {
+      type: DataTypes.TEXT
+    },
+    stateId: {
+      type: DataTypes.INTEGER,
+      field: 'state_id'
+    },
+    userId: {  // id el usuario dueño del vestido
       type: DataTypes.INTEGER,
       field: 'user_id'
-    }, */
+    },
     createdAt: { // Fecha en qeue se registro el vestido (creacion)
-      type: DataTypes.DATE
+      type: DataTypes.DATE,
+      field: 'created_at'
     },
     updatedAt: {
-      type: DataTypes.DATE
+      type: DataTypes.DATE,
+      field: 'updated_at'
     },
     deletedAt: {
-      type: DataTypes.DATE
+      type: DataTypes.DATE,
+      field: 'deleted_at'
     },
     publicatedAt: {  // Fecha en que fue publicado (puesto en venta)
       type: DataTypes.DATE
@@ -60,6 +70,7 @@ module.exports = function (sequelize, DataTypes) {
   }, {
     tableName: 'dresses',
     timestamp: true,
+    underscored: true,
     paranoid: true
     // aqui faltan las relaciones
   })

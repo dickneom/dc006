@@ -4,7 +4,7 @@ var sequelize = new Sequelize('', '', '', {
   dialect: 'sqlite',
   storage: './db/dc.db',
   define: {
-    timestamps: false,
+//    timestamps: false,
     freezeTableName: true
   }
 })

@@ -34,6 +34,7 @@ mixin menu(name)
           span.icon-bar
           span.icon-bar
           span.icon-bar
+        a.navbar-brand(href='/'): img(src='/images/brand/logo.jpg' alt='Logo' width=100 height=25)
         a.navbar-brand(href='/') DressCloset
       .collapse.navbar-collapse#dcMenu
         if (name)
@@ -42,17 +43,25 @@ mixin menu(name)
           if (pageName !== 'dresses')
             li: a(href='/dresses') Vestidos
           if (name)
-            li: a(href='/logout') Salir
             if (pageName !== 'favorites')
               li: a(href='/favorites') Favoritos
             if (pageName !== 'profile')
-              li: a(href='/profile') Perfil            
+              li: a(href='/profile') Perfil
           else
             if (pageName !== 'login')
               li: a(href='/login') Ingresar
             if (pageName !== 'register')
               li: a(href='/register') Registrar
-          li: a(href='#') Menu
+          li.dropdown: a.dropdown-toggle(href='#' data-toggle='dropdown') Menu
+            span.caret
+            ul.dropdown-menu(role='menu')
+              li(role='presentation'): a(href='#' role='menuitem') Opcion
+              li.divider(role='presentation')
+              li.dropdown-header(role='presentation') Título de sección #2
+              if name
+                li(role='presentation'): a(href="/logout" role='menuitem') Salir
+              else
+                li.disabled(role='presentation'): a(href="/logout" role='menuitem') Salir
 
 mixin menu_guest
   nav.navbar.navbar-inverse.navbar-fixed-top
@@ -142,11 +151,15 @@ mixin dresses_grid(dresses)
   .row
     each dress in dresses
       .col-sm-4
-        img(src='' width=80 height=100 alt='imagen')
+        img(src=dress.image width=120 height=150 alt=dress.image)
         h2= dress.title
-        p= dress.description
-        p= dress.price
+        p Descripcion: #{dress.description}
+        p Marca: #{dress.brandId}
+        p Precio: #{dress.price}
+        p Estado: #{dress.stateId}
+        p Color: #{dress.colorId}
 
         a(href='/dresses/' + dress.id + '/like'): button(type='button') Agregar Favorito
         a(href='/dresses/' + dress.id + '/edit'): button(type='button') Editar
         a(href='/dresses/' + dress.id): button(type='button') Ver
+        a(href='/dresses/' + dress.id + '/buy'): button(type='button') Comprar
