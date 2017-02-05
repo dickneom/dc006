@@ -25,17 +25,19 @@ cloudinary.config({
 var db = require('../models/db')
 var control = require('../models/control')
 
-brands = [{id: 1, title: 'Zara'},
+
+
+const BRANDS = [{id: 1, title: 'Zara'},
 		{id: 2, title: 'Chino'},
 		{id: 3, title: 'Victoria Secrets'},
 		{id: 4, title: 'Calvin Klein'},
 		{id: 5, title: 'MiMarca'}]
 
-states = [{id: 1, title: 'REGISTRADO'},
+const STATES = [{id: 1, title: 'REGISTRADO'},
 		{id: 2, title: 'PUBLICADO'},
 		{id: 3, title: 'EN VENTA'}]
 
-colors = [{id: 1, color: 'BLANCO'},
+const COLORS = [{id: 1, color: 'BLANCO'},
 		{id: 2, color: 'NEGRO'},
 		{id: 3, color: 'ROJO'},
 		{id: 4, color: 'AZUL'},
@@ -51,6 +53,7 @@ colors = [{id: 1, color: 'BLANCO'},
 		{id: 14, color: 'DORADO'},
 		{id: 15, color: 'PLATEADO'},]
 
+const NUM_DRESSES_FOR_PAGE = 9
 
 // para usar con todas las rutas
 router.use(function(req, res, next) {
@@ -63,7 +66,7 @@ router.use(function(req, res, next) {
 // listar todos los vestidos
 router.get('/', function (req, res) {
 	console.log('*************** Atendiendo la ruta: /dresses GET')
-    var limit = 9
+    var limit = NUM_DRESSES_FOR_PAGE
     if (req.query.limit) {
         limit = req.query.limit
     }
@@ -72,11 +75,14 @@ router.get('/', function (req, res) {
         pageNumber = req.query.page
     }
 
-    var offset = limit * (pageNumber - 1)
+    var offset = limit * (pageNumber - 1)		// El primer offset es 0
 
     console.log('****** Buscando vestidos: limit: ' + limit + ' pageNumber: ' + pageNumber + ' offset: ' + offset)
 
     db.Dress.findAll({
+    	where: {
+        	state_id: 3
+    	},
         limit: limit,
         offset: offset,
         include: {
@@ -115,7 +121,7 @@ router.get('/', function (req, res) {
 })
 
 // ver un vestido
-router.get('/:dressId', function (req, res) {
+router.get('/:dressId([0-9]+)', function (req, res) {
 	console.log('*************** Atendiendo la ruta: /dresses/:dressId GET')
 	var id = req.params.dressId
 
@@ -137,9 +143,9 @@ router.get('/:dressId', function (req, res) {
 	        	}
 	        }
         }
-		var brand = brands[dress.brandId].title
-		var state = states[dress.stateId - 1].title
-		var color = colors[dress.colorId] .color
+		var brand = BRANDS[dress.brandId].title
+		var state = STATES[dress.stateId - 1].title
+		var color = COLORS[dress.colorId] .color
 		if (dress) {
 			res.render('dresses/dress_view', {
 				pageTitle: 'Vestido ' + dress.title,
@@ -162,7 +168,7 @@ router.get('/:dressId', function (req, res) {
 
 // editar un vestido, tiene que estar registrado, logeado y ser el propietario
 // router.get('/:dressId/edit', control.sessionValidate, function (req, res) {
-router.get('/:dressId/edit', function (req, res) {
+router.get('/:dressId([0-9]+)/edit', function (req, res) {
 	console.log('*************** Atendiendo la ruta: /dresses/:dressId/edit GET')
 	var id = req.params.dressId
 
@@ -192,8 +198,8 @@ router.get('/:dressId/edit', function (req, res) {
 			errors: null,
 			dress: dress,
 			imageUrl: imageUrl,
-			brands: brands,
-			colors: colors
+			brands: BRANDS,
+			colors: COLORS
 		})
 	})
 	.catch(function (errors) {
@@ -229,27 +235,11 @@ router.post('/load_image', uploader.single('image'), function (req, res) {
 			})
 			.then(function (dress) {
 				dress.image = fileUrl
-
 				console.log('********* Vestido a grabar: ' + dress)
-				for (var prop in dress)
-					//console.log('obj.' + prop, '=', dress[prop])
-
-				var sql = 'UPDATE dresses SET image = "' + fileUrl + '" WHERE id = ' + dress.id
-				console.log('Actualizando con : ' + sql)
-				sequelize.query(sql).spread(function(results, metadata) {
-  					// Results will be an empty array and metadata will contain the number of affected rows.
-  					console.log('********* Actualizado')
-  					console.log('********* result')
-  					console.log(result)
-  					console.log('********* metadata')
-  					console.log(metadata)
-  					res.redirect('/dresses/' + dress.id + '/edit')
-				})
-
-/*				dress.update()
+				dress.save()
 				.then(function (dressNew) {
 					res.redirect('/dresses/' + dressNew.id + '/edit')
-				})*/
+				})
 			})
 
 		})
@@ -267,11 +257,11 @@ router.post('/', uploader.single('image'), function (req, res) {
     	console.log('******** Archivo nombre: ' + req.file.name)
 
 
-//    	indico la ruta donde se copiará
-//    	puede ser un directorio local o
-//    	una url web
+		//    	indico la ruta donde se copiará
+		//    	puede ser un directorio local o
+		//    	una url web
 
-//    	asigno a drees.image = ruta final del archivo
+		//    	asigno a drees.image = ruta final del archivo
     }
 
 	var id = ''
@@ -279,22 +269,32 @@ router.post('/', uploader.single('image'), function (req, res) {
 		id = req.body.id
 
 	console.log('****** Grabando vestido. Id: ' + id)
-	if (id !== '') {
+	if (id !== '') { // Actualizar
 		updateDress(req, res, function (error, dress) {
 			if (error) {
+				var imageUrl = ''
+				if (dress.image)
+					if (dress.image !== null)
+						if (dress.image.startsWith('http'))
+							imageUrl = dress.image
+						else
+							imageUrl = '/images/dresses/' + dress.image
+				
 				res.render('dresses/dress_edit', {
 					pageTitle: 'Vestido',
 					pageName: 'dress_view',
 					sessionUser: req.session.userLoged,
-					errors: error,
+					errors: errors,
 					dress: dress,
-					brands: brands
+					imageUrl: imageUrl,
+					brands: BRANDS,
+					colors: COLORS
 				})
 			}
 
 			res.redirect('/dresses/' + dress.id + '/edit')
 		})
-	} else {
+	} else { // Crear
 		createDress(req, res, function (error, dress) {
 			if (error) {
 				res.render('dresses/dress_edit', {
@@ -303,7 +303,7 @@ router.post('/', uploader.single('image'), function (req, res) {
 					sessionUser: req.session.userLoged,
 					errors: error,
 					dress: dress,
-					brands: brands
+					brands: BRANDS
 				})
 			}
 
@@ -359,68 +359,122 @@ function updateDress (req, res, cb) {
 		dress.title = req.body.title
 		dress.description = req.body.description
 		dress.brandId = req.body.brandId
+		dress.colorId = req.body.colorId
 		dress.price = req.body.price
+		dress.priceOriginal = req.body.priceOriginal
 		dress.stateId = 1
 
 		dress.updatedAt = new Date()
 		if (!dress.createdAt)
 			dress.createdAt = new Date()
-		console.log(dress)
-		console.log(dress.id)
-		console.log(dress.title)
-		console.log(dress.description)
-		console.log(dress.brandId)
-		console.log(dress.price)
-		console.log(dress.stateId)
-		console.log(dress.createdAt)
-		console.log(dress.updatedAt)
-		console.log(dress.user.id)
-		console.log(dress.user.nickname)
-
+		//		console.log(dress)
+		console.log('id: ' + dress.id)
+		console.log('title: ' + dress.title)
+		console.log('description: ' + dress.description)
+		console.log('brandId: ' + dress.brandId)
+		console.log('colorId: ' + dress.colorId)
+		console.log('price: ' + dress.price)
+		console.log('priceOriginal: ' + dress.priceOriginal)
+		console.log('stateId: ' + dress.stateId)
+		console.log('createdAt: "' + dress.createdAt + '"')
+		console.log('updatedAt: "' + dress.updatedAt + '"')
+		//		console.log('user.id: ' + dress.user.id)
+		//		console.log('user.nickname: ' + dress.user.nickname)
 
 		console.log('****** Aplicando la actualizacion al vestido')
-		dress.update()
+
+
+		dress.save()
 		.then(function (dressNew) {
 			console.log('*** Vestido actualizado: Id: ' + dressNew.id)
 			cb(null, dressNew)
 		})
 		.catch(function (errors) {
-//			var errors = null
 			console.log('*** ERROR en la actualizacion: ' + errors)
-			res.render('dresses/dress_edit', {
-				pageTitle: 'Vestido',
-				pageName: 'dress_view',
-				sessionUser: req.session.userLoged,
-				errors: errors,
-				dress: dress,
-				brands: brands
-			})
+			db(errors, dress)
 		})
 	})
-/*	.catch(function (errors) {
+	.catch(function (errors) {
 		console.log('****** ERROR en la busqueda: ' + errors)
-	})*/
+	})
 }
 
 // publicar un vestido
-router.get('/:dressId/publish', control.sessionValidate, function(req, res) {
+router.get('/:dressId([0-9]+)/publish', control.sessionValidate, function(req, res) {
 
 })
 
 // poner en venta un vestido. esto lo hace un usuario administrador
-router.get('/:dressId/')
+router.get('/:dressId([0-9]+)/')
 
 // agregar a favoritos un vestido
-router.get('/:dressId/like', control.sessionValidate, function (req, res) {
+router.get('/:dressId([0-9]+)/like', control.sessionValidate, function (req, res) {
 	console.log('*************** Atendiendo la ruta: /dresses/:dressId/like GET')
 	var id = req.params.dressId
 
 })
 
 // comprar un vestido
-router.get('/:dressId/buy', control.sessionValidate, function (req, res) {
+router.get('/:dressId([0-9]+)/buy', control.sessionValidate, function (req, res) {
 	console.log('*************** Atendiendo la ruta: /dresses/:dressId/buy GET')
 
+})
+
+// listar todos los vestidos propios, registrados, publicados y en venta
+router.get('/mycloset', function (req, res) {
+	console.log('*************** Atendiendo la ruta: /dresses/mycloset GET')
+    var limit = NUM_DRESSES_FOR_PAGE
+    if (req.query.limit) {
+        limit = req.query.limit
+    }
+    var pageNumber = 1
+    if (req.query.page) {
+        pageNumber = req.query.page
+    }
+
+    var offset = limit * (pageNumber - 1)
+
+    console.log('****** Buscando vestidos: limit: ' + limit + ' pageNumber: ' + pageNumber + ' offset: ' + offset)
+
+    db.Dress.findAll({
+    	where: {
+        	state_id: [1, 2, 3]
+    	},
+        limit: limit,
+        offset: offset,
+        include: {
+          model: db.User,
+          as: 'user'
+        }
+    }).then(function (dresses) {
+        console.log('*** Busqueda concluida con exito')
+        for (var i in dresses) {
+        	dress = dresses[i]
+        	if (dress.image) {
+        		if (dress.image !== null) {
+		        	if (!dress.image.startsWith('http')) {
+		        		console.log('***************** Imagen no impieza con http ***************************************************')
+		        		dress.image = '/images/dresses/' + dress.image
+		        	}
+		        }
+	        }
+        }
+        if (dresses) {
+            res.render('dresses/dresses_mycloset', {
+                pageTitle: 'Mi Closet',
+                pageName: 'mycloset',
+                sessionUser: req.session.userLoged,
+                errors: null,
+                dresses: dresses,
+                pageNumber: pageNumber,
+                limit: limit
+            })
+        } else {
+            console.log('****** Resultado de la busqueda vacia')
+        }
+	}).catch(function (errors) {
+		console.log('*** ERROR: ' + errors)
+	})
 })
 
 module.exports = router

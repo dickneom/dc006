@@ -58,6 +58,10 @@ mixin menu(name)
               li(role='presentation'): a(href='#' role='menuitem') Opcion
               li.divider(role='presentation')
               li.dropdown-header(role='presentation') Título de sección #2
+              li(role='presentation'): a(href='#' role='menuitem') Perfil
+              li(role='presentation'): a(href='/dresses/mycloset' role='menuitem') Mi Closet
+              li(role='presentation'): a(href='#' role='menuitem') Mensajes
+              li.divider(role='presentation')
               if name
                 li(role='presentation'): a(href="/logout" role='menuitem') Salir
               else
@@ -132,6 +136,14 @@ mixin input(title, type, field, value, errors)
     input(type=type name=field placeholder='Vacio')
   +input_error(errors, field)
 
+mixin input_readonly(title, type, field, value, errors)
+  label(for=field)= title
+  //if value
+  input(type=type name=field value=value placeholder='Con datos' readonly)
+  //else
+    //input(type=type name=field placeholder='Vacio')
+  //+input_error(errors, field)
+
 mixin input_required(title, type, field, value, errors)
   label(for=field)= title
   if value
@@ -159,7 +171,9 @@ mixin dresses_grid(dresses)
         p Estado: #{dress.stateId}
         p Color: #{dress.colorId}
 
-        a(href='/dresses/' + dress.id + '/like'): button(type='button') Agregar Favorito
-        a(href='/dresses/' + dress.id + '/edit'): button(type='button') Editar
+        if (pageName === 'mycloset')
+          a(href='/dresses/' + dress.id + '/edit'): button(type='button') Editar
         a(href='/dresses/' + dress.id): button(type='button') Ver
-        a(href='/dresses/' + dress.id + '/buy'): button(type='button') Comprar
+        if (pageName === 'dresses')
+          a(href='/dresses/' + dress.id + '/like'): button(type='button') Agregar Favorito
+          a(href='/dresses/' + dress.id + '/buy'): button(type='button') Comprar

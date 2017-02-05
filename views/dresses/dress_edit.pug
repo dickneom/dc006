@@ -18,7 +18,7 @@ block content
 					if (dress)
 						.col-sm-4
 							form(method='post' action='/dresses/load_image' enctype='multipart/form-data')
-								+input('ID vestido', 'text', 'id', dress.id, null)
+								+input_readonly('ID vestido', 'text', 'id', dress.id, null)
 								br
 								img(src=imageUrl width=150 height=200 alt='Vestido')
 								input(type='file'  name='image')
@@ -26,7 +26,7 @@ block content
 
 						.col-sm-8
 							form(method='post' action='/dresses')
-								+input('ID vestido', 'text', 'id', dress.id, null)
+								+input_readonly('ID vestido', 'text', 'id', dress.id, null)
 								br
 								+input_required('Titulo', 'text', 'title', dress.title, null)
 								br
@@ -44,11 +44,13 @@ block content
 										each color in colors
 											option(selected=(color.id==dress.colorId) value=color.id)= color.color
 								br
-								+input('Estado', 'text', 'stateId', dress.stateId, null)
-								br
 								+input_required('Precio', 'text', 'price', dress.price, null)
 								br
-								+input('ID propietario', 'text', 'userId', dress.user.id, null)
+								+input_required('Precio Original', 'text', 'priceOriginal', dress.priceOriginal, null)
+								br
+								+input_readonly('Estado', 'text', 'stateId', dress.stateId, null)
+								br
+								+input_readonly('ID propietario', 'text', 'userId', dress.user.id, null)
 								br
 								button(type='submit') Grabar
 
