@@ -159,6 +159,10 @@ mixin input_error(errors, field)
         li.error ERROR. #{error.message}
 
 //-   CUADRICULA DE VESTIDOS
+//-   Muestra una cuadricula con vestidos
+//-   Requiere:
+//-     dresses:  lista de vestidos
+//-     pageName: nombre de la pagina desde la que se muestra
 mixin dresses_grid(dresses)
   .row
     each dress in dresses
@@ -171,9 +175,10 @@ mixin dresses_grid(dresses)
         p Estado: #{dress.stateId}
         p Color: #{dress.colorId}
 
+        a(href='/dresses/' + dress.id): button(type='button') Ver
         if (pageName === 'mycloset')
           a(href='/dresses/' + dress.id + '/edit'): button(type='button') Editar
-        a(href='/dresses/' + dress.id): button(type='button') Ver
+          a(href='/dresses/' + dress.id + '/publish'): button(type='button') Publicar
         if (pageName === 'dresses')
           a(href='/dresses/' + dress.id + '/like'): button(type='button') Agregar Favorito
           a(href='/dresses/' + dress.id + '/buy'): button(type='button') Comprar

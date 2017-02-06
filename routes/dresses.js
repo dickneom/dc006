@@ -66,6 +66,7 @@ router.use(function(req, res, next) {
 // listar todos los vestidos
 router.get('/', function (req, res) {
 	console.log('*************** Atendiendo la ruta: /dresses GET')
+	console.log(req.url + ' - ' + req.method)
     var limit = NUM_DRESSES_FOR_PAGE
     if (req.query.limit) {
         limit = req.query.limit
@@ -123,6 +124,7 @@ router.get('/', function (req, res) {
 // ver un vestido
 router.get('/:dressId([0-9]+)', function (req, res) {
 	console.log('*************** Atendiendo la ruta: /dresses/:dressId GET')
+	console.log(req.url + ' - ' + req.method)
 	var id = req.params.dressId
 
 	db.Dress.findOne({
@@ -207,7 +209,8 @@ router.get('/:dressId([0-9]+)/edit', function (req, res) {
 	})
 })
 
-
+// carga la imagen de un vestido. tiene que estar registrado, logeado y ser el propietario
+// tratar de unirlo con la ruta '/ POST'
 router.post('/load_image', uploader.single('image'), function (req, res) {
 	console.log('*************** Atendiendo la ruta: /dresses/load_image POST')
 	if (req.file) {
@@ -401,11 +404,27 @@ function updateDress (req, res, cb) {
 
 // publicar un vestido
 router.get('/:dressId([0-9]+)/publish', control.sessionValidate, function(req, res) {
+	var id = req.params.dressId
+
+	db.Dress.findOne({
+		where: {
+			id: id
+		}
+	})
+	.then(function (dress) {
+		dress.update({stateId: 2}).then(function (dressNew) {
+			res.redirect('/')
+		})
+	})
+
 
 })
 
 // poner en venta un vestido. esto lo hace un usuario administrador
-router.get('/:dressId([0-9]+)/')
+router.get('/:dressId([0-9]+)/poner_en_venta')
+
+// No poner en venta un vestido (Rechazar por correcciones) y notificar al propietario. esto lo hace un usuario administrador
+router.get('/:dressId([0-9]+)/no_poner_en_venta')
 
 // agregar a favoritos un vestido
 router.get('/:dressId([0-9]+)/like', control.sessionValidate, function (req, res) {
@@ -414,7 +433,7 @@ router.get('/:dressId([0-9]+)/like', control.sessionValidate, function (req, res
 
 })
 
-// comprar un vestido
+// comprar un vestido, registrar la compra para el pago
 router.get('/:dressId([0-9]+)/buy', control.sessionValidate, function (req, res) {
 	console.log('*************** Atendiendo la ruta: /dresses/:dressId/buy GET')
 
