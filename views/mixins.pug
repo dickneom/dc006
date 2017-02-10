@@ -55,10 +55,12 @@ mixin menu(name)
           li.dropdown: a.dropdown-toggle(href='#' data-toggle='dropdown') Menu
             span.caret
             ul.dropdown-menu(role='menu')
-              li(role='presentation'): a(href='#' role='menuitem') Opcion
+              li.dropdown-header(role='presentation') Administrador
+              li(role='presentation'): a(href='/dresses/admin' role='menuitem') Lista de Vestidos
               li.divider(role='presentation')
-              li.dropdown-header(role='presentation') Título de sección #2
+              li.dropdown-header(role='presentation') Usuario
               li(role='presentation'): a(href='#' role='menuitem') Perfil
+              li(role='presentation'): a(href='/dresses/likes' role='menuitem') Favoritos
               li(role='presentation'): a(href='/dresses/mycloset' role='menuitem') Mi Closet
               li(role='presentation'): a(href='#' role='menuitem') Mensajes
               li.divider(role='presentation')
@@ -166,19 +168,25 @@ mixin input_error(errors, field)
 mixin dresses_grid(dresses)
   .row
     each dress in dresses
-      .col-sm-4
-        img(src=dress.image width=120 height=150 alt=dress.image)
-        h2= dress.title
-        p Descripcion: #{dress.description}
-        p Marca: #{dress.brandId}
-        p Precio: #{dress.price}
-        p Estado: #{dress.stateId}
-        p Color: #{dress.colorId}
+      if (dress)
+        .col-sm-4
+          img(src=dress.image width=120 height=150 alt=dress.image)
+          h2= dress.title
+          p Descripcion: #{dress.description}
+          p Marca: #{dress.brandId}
+          p Precio: #{dress.price}
+          p Estado: #{dress.stateId}
+          p Color: #{dress.colorId}
+          p Propietario: #{dress.user.nickname}
 
-        a(href='/dresses/' + dress.id): button(type='button') Ver
-        if (pageName === 'mycloset')
-          a(href='/dresses/' + dress.id + '/edit'): button(type='button') Editar
-          a(href='/dresses/' + dress.id + '/publish'): button(type='button') Publicar
-        if (pageName === 'dresses')
-          a(href='/dresses/' + dress.id + '/like'): button(type='button') Agregar Favorito
-          a(href='/dresses/' + dress.id + '/buy'): button(type='button') Comprar
+          a(href='/dresses/' + dress.id): button(type='button') Ver
+          if (pageName === 'mycloset')
+            a(href='/dresses/' + dress.id + '/edit'): button(type='button') Editar
+            if dress.stateId === 1
+              a(href='/dresses/' + dress.id + '/publish'): button(type='button') Publicar
+          if (pageName === 'dresses')
+            a(href='/dresses/' + dress.id + '/like'): button(type='button') Agregar Favorito
+            a(href='/dresses/' + dress.id + '/buy'): button(type='button') Comprar
+          if (dress.stateId === 2)
+            a(href='/dresses/' + dress.id + '/publish_acept'): button(type='button') En venta
+            a(href='/dresses/' + dress.id + '/publish_reject'): button(type='button') No en venta

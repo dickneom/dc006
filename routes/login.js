@@ -31,7 +31,10 @@ router.route('/')
 	        } else {
 	            req.session.userLoged = user
 	            control.sessionInit(req, res, user)
-	            res.redirect('/')
+	            if (req.session.url)
+	            	res.redirect(req.session.url)
+	            else
+	            	res.redirect('/')
 	        }
 	    })
 	})

@@ -60,13 +60,17 @@ router.use(function(req, res, next) {
 	//
 	// codigo aqui
 	//
+	req.session.url = '/dresses' + req.url
 	next()
 })
 
-// listar todos los vestidos
+
+// RUTAS PARA TODOS LOS USUARIOS, INCLUSO VISITANTES
+// listar todos los vestidos para todos los usuarios, los vestidos tienen que estar en estado 3
 router.get('/', function (req, res) {
 	console.log('*************** Atendiendo la ruta: /dresses GET')
 	console.log(req.url + ' - ' + req.method)
+
     var limit = NUM_DRESSES_FOR_PAGE
     if (req.query.limit) {
         limit = req.query.limit
@@ -92,6 +96,8 @@ router.get('/', function (req, res) {
         }
     }).then(function (dresses) {
         console.log('*** Busqueda concluida con exito')
+
+        // Determinar la url de la imagen
         for (var i in dresses) {
         	dress = dresses[i]
         	if (dress.image) {
@@ -103,7 +109,12 @@ router.get('/', function (req, res) {
 		        }
 	        }
         }
+
+        // Mostrar los vestidos en el navegador
         if (dresses) {
+        	for (var dress in dresses)
+        		console.log('dress: ', dress.id)
+
             res.render('dresses/dresses', {
                 pageTitle: 'Vestidos',
                 pageName: 'dresses',
@@ -121,7 +132,7 @@ router.get('/', function (req, res) {
 	})
 })
 
-// ver un vestido
+// ver un vestido, para todos los usuarios, los vestidos tienen que estar en estado 3
 router.get('/:dressId([0-9]+)', function (req, res) {
 	console.log('*************** Atendiendo la ruta: /dresses/:dressId GET')
 	console.log(req.url + ' - ' + req.method)
@@ -168,9 +179,136 @@ router.get('/:dressId([0-9]+)', function (req, res) {
 	})
 })
 
+// RUTAS PARA LOS USUARIOS REGISTRADOS
+// listar los vestidos festidos para los usuarios registrados, los vestidos tienen que estar en estado 3
+router.get('/likes', control.sessionValidate, function (req, res) {
+	console.log('*************** Atendiendo la ruta: /dresses/likes GET')
+	db.Dress.findAll()
+	.then(function (dresses) {
+        res.render('dresses/likes', {
+            pageTitle: 'Vestidos',
+            pageName: 'dresses_likes',
+            sessionUser: req.session.userLoged,
+            errors: null,
+            dresses: dresses,
+            pageNumber: pageNumber,
+            limit: limit
+        })
+	})
+})
+
+var getDresses = function(cb) {
+	db.Dress.findAll()
+	.then(function(dresses) {
+		cb(dresses)
+	})
+	.catch(function(errors) {
+		console.log('ERROR ' + errors)
+	})
+}
+
+var getDress = function(id, cb) {
+	db.Dress.findOne({
+		where: {
+			id: id
+		}
+	})
+	.then(function(dresses) {
+		cb(dresses)
+	})
+	.catch(function(errors) {
+		console.log('ERROR ' + errors)
+	})
+}
+
+// agregar a favoritos un vestido
+router.get('/:dressId([0-9]+)/like', control.sessionValidate, function (req, res) {
+	console.log('*************** Atendiendo la ruta: /dresses/:dressId/like GET')
+	// Coloca el vestido en favoritos si no esta, caso contrario lo retira
+
+	var id = req.params.dressId
+
+})
+
+// quitar de favoritos un vestido
+router.get('/:dressId([0-9]+)/dislike', control.sessionValidate, function (req, res) {
+	console.log('*************** Atendiendo la ruta: /dresses/:dressId/like GET')
+	// Coloca el vestido en favoritos si no esta, caso contrario lo retira
+
+	var id = req.params.dressId
+
+})
+
+// comprar un vestido, registrar la compra para el pago
+router.get('/:dressId([0-9]+)/buy', control.sessionValidate, function (req, res) {
+	console.log('*************** Atendiendo la ruta: /dresses/:dressId/buy GET')
+
+
+})
+
+// cancelar la compra, TAMBIEN SE PODRIA DEJAR POR UN TIEMPO DETERMINADO Y QUE LA COMPRA SE CANCELE SOLA
+
+// RUTAS PARA LOS PROPIETARIOS DE LOS VESTIDOS
+// listar todos los vestidos propios, registrados, publicados y en venta
+router.get('/mycloset', control.sessionValidate, function (req, res) {
+	console.log('*************** Atendiendo la ruta: /dresses/mycloset GET')
+    var limit = NUM_DRESSES_FOR_PAGE
+    if (req.query.limit) {
+        limit = req.query.limit
+    }
+    var pageNumber = 1
+    if (req.query.page) {
+        pageNumber = req.query.page
+    }
+
+    var offset = limit * (pageNumber - 1)
+
+    console.log('****** Buscando vestidos: limit: ' + limit + ' pageNumber: ' + pageNumber + ' offset: ' + offset)
+
+    db.Dress.findAll({
+    	where: {
+    		userId: req.session.userLoged.id,
+        	stateId: [1, 2, 3]
+    	},
+        limit: limit,
+        offset: offset,
+        include: {
+          model: db.User,
+          as: 'user'
+        }
+    }).then(function (dresses) {
+        console.log('*** Busqueda concluida con exito')
+        for (var i in dresses) {
+        	dress = dresses[i]
+        	if (dress.image) {
+        		if (dress.image !== null) {
+		        	if (!dress.image.startsWith('http')) {
+		        		console.log('***************** Imagen no impieza con http ***************************************************')
+		        		dress.image = '/images/dresses/' + dress.image
+		        	}
+		        }
+	        }
+        }
+        if (dresses) {
+            res.render('dresses/dresses_mycloset', {
+                pageTitle: 'Mi Closet',
+                pageName: 'mycloset',
+                sessionUser: req.session.userLoged,
+                errors: null,
+                dresses: dresses,
+                pageNumber: pageNumber,
+                limit: limit
+            })
+        } else {
+            console.log('****** Resultado de la busqueda vacia')
+        }
+	}).catch(function (errors) {
+		console.log('*** ERROR: ' + errors)
+	})
+})
+
 // editar un vestido, tiene que estar registrado, logeado y ser el propietario
-// router.get('/:dressId/edit', control.sessionValidate, function (req, res) {
-router.get('/:dressId([0-9]+)/edit', function (req, res) {
+router.get('/:dressId([0-9]+)/edit', control.sessionValidate, control.isDressOwner, function (req, res) {
 	console.log('*************** Atendiendo la ruta: /dresses/:dressId/edit GET')
 	var id = req.params.dressId
 
@@ -209,9 +347,36 @@ router.get('/:dressId([0-9]+)/edit', function (req, res) {
 	})
 })
 
+router.post('/update', control.sessionValidate, control.isDressOwner, function (req, res, next) {
+	console.log('*************** Atendiendo la ruta: /update POST')
+
+
+})
+
+// editar un vestido, tiene que estar registrado, logeado y ser el propietario
+// router.get('/:dressId/edit', control.sessionValidate, function (req, res) {
+router.get('/create', control.sessionValidate, function (req, res) {
+	console.log('*************** Atendiendo la ruta: /dresses/:dressId/edit GET')
+
+	res.render('dresses/dress_edit', {
+		pageTitle: 'Crear Vestido',
+		pageName: 'dress_edit',
+		sessionUser: req.session.userLoged,
+		errors: null,
+		dress: null,
+		imageUrl: null,
+		brands: BRANDS,
+		colors: COLORS
+	})
+})
+
+router.post('/create', control.sessionValidate, function (req, res, next) {
+	console.log('*************** Atendiendo la ruta: /create POST')
+})
+
 // carga la imagen de un vestido. tiene que estar registrado, logeado y ser el propietario
 // tratar de unirlo con la ruta '/ POST'
-router.post('/load_image', uploader.single('image'), function (req, res) {
+router.post('/save_image', control.sessionValidate, control.isDressOwner, uploader.single('image'), function (req, res) {
 	console.log('*************** Atendiendo la ruta: /dresses/load_image POST')
 	if (req.file) {
 		// var dirDest = '/images/dresses/'
@@ -251,14 +416,15 @@ router.post('/load_image', uploader.single('image'), function (req, res) {
 
 // guardar un vestido, tiene que estar registrado, logeado y ser el propietario
 // router.post('/', control.sessionValidate, function (req, res) {
-router.post('/', uploader.single('image'), function (req, res) {
+router.post('/', control.sessionValidate, control.isDressOwner, uploader.single('image'), function (req, res) {
+	console.log('*************************************************************************************************')
 	console.log('*************** Atendiendo la ruta: /dresses/ POST')
-    if (req.file) { //form files
-    	console.log(req.file.path) //form files
+	console.log('*************************************************************************************************')
+    if (req.file) { // form files
+    	console.log(req.file.path) // form files
     	var fileUpload = req.file.path
     	console.log(fileUpload)
     	console.log('******** Archivo nombre: ' + req.file.name)
-
 
 		//    	indico la ruta donde se copiará
 		//    	puede ser un directorio local o
@@ -273,6 +439,7 @@ router.post('/', uploader.single('image'), function (req, res) {
 
 	console.log('****** Grabando vestido. Id: ' + id)
 	if (id !== '') { // Actualizar
+		console.log('********* Se va a actualizar un vestido *********')
 		updateDress(req, res, function (error, dress) {
 			if (error) {
 				var imageUrl = ''
@@ -298,6 +465,7 @@ router.post('/', uploader.single('image'), function (req, res) {
 			res.redirect('/dresses/' + dress.id + '/edit')
 		})
 	} else { // Crear
+		console.log('********* Se va a crear un vestido *********')
 		createDress(req, res, function (error, dress) {
 			if (error) {
 				res.render('dresses/dress_edit', {
@@ -386,7 +554,6 @@ function updateDress (req, res, cb) {
 
 		console.log('****** Aplicando la actualizacion al vestido')
 
-
 		dress.save()
 		.then(function (dressNew) {
 			console.log('*** Vestido actualizado: Id: ' + dressNew.id)
@@ -403,97 +570,42 @@ function updateDress (req, res, cb) {
 }
 
 // publicar un vestido
-router.get('/:dressId([0-9]+)/publish', control.sessionValidate, function(req, res) {
-	var id = req.params.dressId
+router.get('/:dressId([0-9]+)/publish', control.sessionValidate, control.isDressOwner, function(req, res) {
+	console.log('*************** Atendiendo la ruta: /dresses/:dressId/publish GET')
+	var dressId = req.params.dressId
 
 	db.Dress.findOne({
 		where: {
-			id: id
+			id: dressId
 		}
 	})
 	.then(function (dress) {
 		dress.update({stateId: 2}).then(function (dressNew) {
+			//
+			//	mensaje a los administradores para que ponga en venta el vestido o lo rechaze
+			//
 			res.redirect('/')
 		})
 	})
-
-
+	.catch(function (errors) {
+		console.log('*** ERROR en la busqueda del vestido: ' + dressId)
+	})
 })
 
+// RUTAS PARA LOS ADMINISTRADORES
 // poner en venta un vestido. esto lo hace un usuario administrador
-router.get('/:dressId([0-9]+)/poner_en_venta')
+router.get('/:dressId([0-9]+)/publish_acepted', function (req, res) {
+	console.log('*************** Atendiendo la ruta: /dresses/:dressId/publish_acepted GET')
+})
 
 // No poner en venta un vestido (Rechazar por correcciones) y notificar al propietario. esto lo hace un usuario administrador
-router.get('/:dressId([0-9]+)/no_poner_en_venta')
-
-// agregar a favoritos un vestido
-router.get('/:dressId([0-9]+)/like', control.sessionValidate, function (req, res) {
-	console.log('*************** Atendiendo la ruta: /dresses/:dressId/like GET')
-	var id = req.params.dressId
-
+router.get('/:dressId([0-9]+)/publish_reject', function (req, res) {
+	console.log('*************** Atendiendo la ruta: /dresses/:dressId/publish_reject GET')
 })
 
-// comprar un vestido, registrar la compra para el pago
-router.get('/:dressId([0-9]+)/buy', control.sessionValidate, function (req, res) {
-	console.log('*************** Atendiendo la ruta: /dresses/:dressId/buy GET')
-
-})
-
-// listar todos los vestidos propios, registrados, publicados y en venta
-router.get('/mycloset', function (req, res) {
-	console.log('*************** Atendiendo la ruta: /dresses/mycloset GET')
-    var limit = NUM_DRESSES_FOR_PAGE
-    if (req.query.limit) {
-        limit = req.query.limit
-    }
-    var pageNumber = 1
-    if (req.query.page) {
-        pageNumber = req.query.page
-    }
-
-    var offset = limit * (pageNumber - 1)
-
-    console.log('****** Buscando vestidos: limit: ' + limit + ' pageNumber: ' + pageNumber + ' offset: ' + offset)
-
-    db.Dress.findAll({
-    	where: {
-        	state_id: [1, 2, 3]
-    	},
-        limit: limit,
-        offset: offset,
-        include: {
-          model: db.User,
-          as: 'user'
-        }
-    }).then(function (dresses) {
-        console.log('*** Busqueda concluida con exito')
-        for (var i in dresses) {
-        	dress = dresses[i]
-        	if (dress.image) {
-        		if (dress.image !== null) {
-		        	if (!dress.image.startsWith('http')) {
-		        		console.log('***************** Imagen no impieza con http ***************************************************')
-		        		dress.image = '/images/dresses/' + dress.image
-		        	}
-		        }
-	        }
-        }
-        if (dresses) {
-            res.render('dresses/dresses_mycloset', {
-                pageTitle: 'Mi Closet',
-                pageName: 'mycloset',
-                sessionUser: req.session.userLoged,
-                errors: null,
-                dresses: dresses,
-                pageNumber: pageNumber,
-                limit: limit
-            })
-        } else {
-            console.log('****** Resultado de la busqueda vacia')
-        }
-	}).catch(function (errors) {
-		console.log('*** ERROR: ' + errors)
-	})
+// Listar los vestidos para el administrador 
+router.get('/admin', function (req, res, next) {
+	console.log('*************** Atendiendo la ruta: /dresses/admin GET')
 })
 
 module.exports = router

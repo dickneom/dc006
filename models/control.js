@@ -65,6 +65,51 @@ function sessionValidate (req, res, next) {
     }
 }
 
+// middleware para verificar que el usuario de la sesion es el dueño del vestido
+function isDressOwner(req, res, next) {
+    console.log('*** *** *** *** Validando si el usuario es el propietario del vestido')
+    console.log('******************** 2.- cargando desde params')
+    var dressId = req.params.dressId
+    console.log('******************** 1.- dressId: ' + dressId)
+
+    if (typeof dressId === 'undefined') {
+        console.log('******************** 2.- cargando desde body')
+        console.log(req.body.id + '-' + req.session.userLoged.id)
+        dressId = req.body.id
+    }
+    console.log('******************** 2.- dressId: ' + dressId)
+
+    if (dressId === '') { // se esta creando un vestido, el propietario es el que tiene la session actual
+        console.log('*** *** *** *** Se va ha crear un nuevo vestido')
+        next()
+    } else {
+        // se esta modificando un vestido se continua con la verificacion del propietario
+        console.log('*** *** *** *** Se va ha actualizar un nuevo vestido')
+        db.Dress.findOne({
+            where: {
+                id: dressId
+            },
+            include: {
+                model: db.User,
+                as: 'user'
+            }
+        })
+        .then(function (dress) {
+            if (dress.user.id === req.session.userLoged.id) {
+                console.log('*** *** *** *** Se va ha actualizar un nuevo vestido... Vestido encontrado')
+                next()
+            } else {
+                console.log('*** *** *** *** Se va ha actualizar un nuevo vestido... no autorizado para editar el vestido')
+                res.send('No esta autorizado a editar del vestido: ' + dress.title)
+            }
+        })
+        .catch(function (errors) {
+            console.log('*** *** *** *** Se va ha actualizar un nuevo vestido... error en la busqueda')
+            console.log('ERROR en la busqueda del vestido: ' + errors)
+        })
+    }
+}
+
 // Verifica que el usuario este autenticado
 function isAuthenticatedUser(user, next) {
     if(user.authenticated)
@@ -95,6 +140,7 @@ module.exports.login = login
 module.exports.encryptPassword = encryptPassword
 module.exports.sessionInit = sessionInit
 module.exports.sessionValidate = sessionValidate
+module.exports.isDressOwner = isDressOwner
 module.exports.sessionDestroy = sessionDestroy
 module.exports.encryptEmail = encryptEmail
 module.exports.decryptEmail = decryptEmail

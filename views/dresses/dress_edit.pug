@@ -17,7 +17,7 @@ block content
 				.row
 					if (dress)
 						.col-sm-4
-							form(method='post' action='/dresses/load_image' enctype='multipart/form-data')
+							form(method='post' action='/dresses/save_image' enctype='multipart/form-data')
 								+input_readonly('ID vestido', 'text', 'id', dress.id, null)
 								br
 								img(src=imageUrl width=150 height=200 alt='Vestido')
@@ -56,28 +56,32 @@ block content
 
 					else
 						form(method='post' action='/dresses' enctype='multipart/form-data')
-							.col-md-4
-								img(src='' width=150 height=200 alt='Vestido')
-								input(type='file'  name='image')
 							.col-md-8
-								+input('ID vestido', 'text', 'id', '', null)
+								+input_readonly('ID vestido', 'text', 'id', '', null)
 								br
 								+input_required('Titulo', 'text', 'title', null, null)
 								br
-								+input('Marca', 'text', 'brand', null, null)
+								+input_required('Descripcion', 'text', 'description', null, null)
 								br
+								label(for='brandId') Marca
 								select(name='brandId')
-									option('disabled') - Seleccione una -
+									option('selected' 'disabled') - Seleccione una -
 									each brand in brands
-										option(value=brand.id)= brand
+										option(value=brand.id)= brand.title
 								br
-								+input('Estado', 'text', 'stateId', 1, null)
+								label(for='colorId') Color
+								select(name='colorId')
+									option('selected' 'disabled') - Seleccione uno -
+										each color in colors
+											option(value=color.id)= color.color
 								br
 								+input_required('Precio', 'text', 'price', null, null)
 								br
-								+input_required('Descripcion', 'text', 'description', null, null)
+								+input_required('Precio Original', 'text', 'priceOriginal', null, null)
 								br
-								+input('ID propietario', 'text', 'userId', dress.user.id, null)
+								+input_readonly('Estado', 'text', 'stateId', 1, null)
+								br
+								+input_readonly('ID propietario', 'text', 'userId', sessionUser.id, null)
 								br
 								button(type='submit') Grabar
 

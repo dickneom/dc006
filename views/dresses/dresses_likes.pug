@@ -1,0 +1,47 @@
+extends ../layout
+include ../mixins
+
+block content
+  if (sessionUser)
+    if (sessionUser.nickname)
+      +menu(sessionUser.nickname)
+    else
+      +menu(sessionUser.fullname)
+  else
+    +menu(null)
+    
+  .container
+    h1 Mi Closet
+    a(href='/dresses/create') Agregar Vestido
+
+  .container
+    +dresses_grid(dresses)
+
+  div
+    .container
+      ul.nav.navbar-nav
+        -var pagePrevio = pageNumber - 1
+        -var pageNext = pagePrevio + 2
+        -pagePrevio = pagePrevio < 1? 1 : pagePrevio
+        -pageNext = pagePrevio < 1? 2 : pageNext
+        -var urlPrevio = '/dresses/mycloset?limit='+limit+'&page='+pagePrevio
+        -var urlNext = '/dresses/mycloset?limit='+limit+'&page='+pageNext
+        li: a(href=urlPrevio) Anterior
+        li= pageNumber
+        li: a(href=urlNext) Siguiente
+
+  div
+    +foot
+
+//- Pagina de inicio de un usuario que ha iniciado sesion
+//- Requiere:
+//-   pageTitle:  Titulo de la pagina, va en el encabezado
+//-   pageName: nombre de de la pagina que se muestra
+//-   sessionUser:  datos del usuario que inicio sesion
+//-   dresses:  lista de vestidos a mostrar
+//-   pageNumber: numero de la pagina que se esta muestra
+//-   limit:  numero de vestidos a mostrar
+//- Envia:
+//-   limit:  numero de vestidos a presentar
+//-   page: numero de la pagina a presentar
+
