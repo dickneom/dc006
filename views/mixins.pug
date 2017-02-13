@@ -181,7 +181,7 @@ mixin dresses_grid(dresses)
 
           a(href='/dresses/' + dress.id): button(type='button') Ver
           if (pageName === 'mycloset')
-            a(href='/dresses/' + dress.id + '/edit'): button(type='button') Editar
+            a(href='/dresses/' + dress.id + '/update'): button(type='button') Editar
             if dress.stateId === 1
               a(href='/dresses/' + dress.id + '/publish'): button(type='button') Publicar
           if (pageName === 'dresses')

@@ -1,0 +1,41 @@
+extends ../layout
+include ../mixins
+
+block content
+	if sessionUser
+		if (sessionUser.nickname)
+			+menu(sessionUser.nickname)
+		else
+			+menu(sessionUser.fullname)
+	else
+		+menu(null)
+
+	.container
+		h1 Editar Vestido
+		.row
+			.col-sm-9
+				.row
+					a(href='/dresses/mycloset') Regresar
+				.row
+					if (dress)
+						form(method='post' action='/dresses/save_image' enctype='multipart/form-data')
+							+input_readonly('ID vestido', 'text', 'dresId', dress.id, null)
+							br
+							img(src=imageUrl width=150 height=200 alt='Vestido')
+							input(type='file'  name='image')
+							button(type='submit') Subir imagen
+
+			.col-sm-3
+				p Publicidad
+
+	+foot
+
+
+//-		Muestra un formulario para la edicion de los datos de un vestido
+//-		Requiere:
+//-			pageTitle
+//-			pageName
+//-			sessionUser
+//-			dress
+//-			errors
+//-			brands:	Arreglo con las marcas aceptadas

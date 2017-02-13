@@ -1,0 +1,63 @@
+extends ../layout
+include ../mixins
+
+block content
+	if sessionUser
+		if (sessionUser.nickname)
+			+menu(sessionUser.nickname)
+		else
+			+menu(sessionUser.fullname)
+	else
+		+menu(null)
+
+	.container
+		h1 Editar Vestido
+		.row
+			.col-sm-9
+				.row
+					a(href='/dresses/mycloset') Regresar
+				.row
+					if (dress)
+						form(method='post' action='/dresses/update')
+							+input_readonly('ID vestido', 'text', 'dressId', dress.id, null)
+							br
+							+input_required('Titulo', 'text', 'title', dress.title, null)
+							br
+							+input_required('Descripcion', 'text', 'description', dress.description, null)
+							br
+							label(for='brandId') Marca
+							select(name='brandId')
+								option('selected' 'disabled') - Seleccione una -
+									each brand in brands
+										option(selected=(brand.id==dress.brandId) value=brand.id)= brand.title
+							br
+							label(for='colorId') Color
+							select(name='colorId')
+								option('selected' 'disabled') - Seleccione uno -
+									each color in colors
+										option(selected=(color.id==dress.colorId) value=color.id)= color.color
+							br
+							+input_required('Precio', 'text', 'price', dress.price, null)
+							br
+							+input_required('Precio Original', 'text', 'priceOriginal', dress.priceOriginal, null)
+							br
+							+input_readonly('Estado', 'text', 'stateId', dress.stateId, null)
+							br
+							+input_readonly('ID propietario', 'text', 'userId', dress.user.id, null)
+							br
+							button(type='submit') Grabar
+
+			.col-sm-3
+				p Publicidad
+
+	+foot
+
+
+//-		Muestra un formulario para la edicion de los datos de un vestido
+//-		Requiere:
+//-			pageTitle
+//-			pageName
+//-			sessionUser
+//-			dress
+//-			errors
+//-			brands:	Arreglo con las marcas aceptadas

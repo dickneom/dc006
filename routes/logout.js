@@ -1,11 +1,11 @@
 var express = require('express')
 var router = express.Router()
 
-var control = require('../models/control')
+// var control = require('../models/control')
 
-router.get('/', function(req, res, next) {
+router.get('/', function (req, res, next) {
 	console.log('*************** Atendiendo la ruta: /logout GET')
-	req.session.destroy(function(errors) {
+	req.session.destroy(function (errors) {
 		if (errors) {
 			console.log('*** ERROR: ' + errors)
 			return
@@ -19,4 +19,4 @@ router.get('/', function(req, res, next) {
 	})
 })
 
-module.exports = router;
+module.exports = router
